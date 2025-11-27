@@ -32,7 +32,6 @@ function parseImageView2(imageView2) {
   }
   return { mode, width, height, format, interlace, quality };
 }
-
 export default {
   async fetch(request, env) {
     try {
@@ -69,32 +68,19 @@ export default {
         if (!object) {
           return new Response('Image not found', { status: 404 });
         }
-
-        // 构建转换选项
-        const transformOptions = {
-          fit: params.mode === 1 || params.mode === 3 || params.mode === 5 ? 'cover' : 'contain',
-          format: params.format || 'jpeg',
-          quality: params.quality || 80,
-        };
-
-        // 只在有值时添加 width 和 height
-        if (params.width) {
-          transformOptions.width = params.width;
-        }
-        if (params.height) {
-          transformOptions.height = params.height;
-        }
-
+        const imageData = await object.arrayBuffer();
+        
         // 使用 Images API 处理图像
-        const transformedImage = await env.IMAGES.transform(object.body, transformOptions);
+const image = await env.IMAGES.transform(imageData, {
+  width: params.width,
+  height: params.height,
+  fit: params.mode === 1 || params.mode === 3 || params.mode === 5 ? 'cover' : 'contain',
+  format: params.format || 'jpeg',
+  quality: params.quality || 80,
+});
 
-        // 返回处理后的图像
-        return new Response(transformedImage.body, {
-          headers: {
-            'Content-Type': `image/${params.format || 'jpeg'}`,
-            'Cache-Control': 'public, max-age=31536000',
-          },
-        });
+
+        return image;
       } else {
         // 没有 imageView2 参数，直接返回原图
         const object = await env.MY_BUCKET.get(pathname.slice(1));
@@ -113,5 +99,4 @@ export default {
       return new Response('Internal Error', { status: 500 });
     }
   }
-};
-
+}
