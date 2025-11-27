@@ -1,8 +1,6 @@
 function parseImageView2(imageView2) {
-  // 允许 imageView2/2/w/20/h/20/format/jpg/q/90 这种格式
   const parts = imageView2.split('/');
   if (parts.length < 1) return null;
-  // 必须以 <mode> 开头
   let i = 0;
   let mode, width, height, format, interlace, quality;
   if (parts[i]) {
@@ -29,7 +27,6 @@ function parseImageView2(imageView2) {
       case 'q':
         quality = parseInt(val, 10);
         break;
-      // 可扩展更多参数
     }
     i += 2;
   }
@@ -38,6 +35,7 @@ function parseImageView2(imageView2) {
 
 export default {
   async fetch(request, env) {
+    try {
     const url = new URL(request.url);
     const pathname = url.pathname;
     const searchParams = url.searchParams;
@@ -106,6 +104,10 @@ export default {
           'Cache-Control': 'public, max-age=31536000',
         },
       });
+    }
+} catch (e) {
+      console.error('Worker error:', e);
+      return new Response('Internal Error', { status: 500 });
     }
   }
 }
