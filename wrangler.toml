@@ -1,3 +1,12 @@
 name = "imgprocess"
 main = "deal.js"  # 如果你的入口文件是 src/index.js
 compatibility_date = "2025-11-27"
+
+[[r2_buckets]]
+binding = "MY_BUCKET"         # Worker 代码里用的名字
+bucket_name = "shadowteacher"   # 你的R2桶名
+preview_bucket_name = "shadowteacher"
+
+# 绑定 Image Resizing API
+[images]
+binding = "IMAGES"
